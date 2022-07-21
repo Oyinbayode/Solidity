@@ -5,8 +5,61 @@
     <meta http-equiv="C-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fund Me App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    Hello! Heyo
+    <main class="flex items-center justify-center h-screen font-mono">
+      <div class="flex flex-col align-center">
+        <h1 class="self-center text-6xl">Fund Me 😜</h1>
+        <p class="mt-6 mb-6">
+          Fund Me is a web application that allows you send ETH to me
+        </p>
+        <button
+          class="border-solid border-2 border-sky-500 w-1/3 h-12 rounded-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 self-center mb-6"
+          id="connectButton"
+        >
+          Connect Wallet
+        </button>
+        <div id="parentElement" class="flex items-center w-full justify-center">
+          <div id="childElement" class="flex items-center self-center w-1/2">
+            <label
+              class="block mb-2 text-sm font-medium text-black-900 dark:text-black-300"
+              for="fund"
+              >ETH Amount</label
+            >
+            <input
+              class="bg-sky-50 border border-gray-300 text-red-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+              type="number"
+              id="ethAmount"
+              placeholder="0.1"
+              required
+            />
+          </div>
+          <button
+            class="w-1/8 self-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+            id="fundButton"
+          >
+            Fund
+          </button>
+        </div>
+        <button
+          id="getBalance"
+          class="border-solid border-2 border-sky-500 w-1/3 h-12 bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 self-center mb-6 mt-6"
+        >
+          Get Balance
+        </button>
+      </div>
+    </main>
+
+    <style>
+      .note {
+        align-self: center;
+        font-size: 18px;
+      }
+    </style>
+
+    <!--Form-->
+
+    <script src="./script.js" type="module"></script>
   </body>
 </html>
