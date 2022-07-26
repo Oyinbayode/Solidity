@@ -24,7 +24,7 @@ error Lottery__UpkeepNotNeeded(
 
 contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     /* Types */
-    enum RaffleState {
+    enum LotteryState {
         OPEN,
         CONNECTING
     }
@@ -40,7 +40,7 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     /* Lottery Variables */
     address private s_recentWinner;
-    RaffleState private s_raffleState;
+    LotteryState private s_lotteryState;
     uint256 private s_lastTimeStamp;
     uint256 private immutable i_interval;
 
@@ -63,7 +63,7 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         i_keyHash = keyHash;
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
-        s_raffleState = RaffleState.OPEN;
+        s_lotteryState = LotteryState.OPEN;
         s_lastTimeStamp = block.timestamp;
         i_interval = interval;
     }
@@ -75,7 +75,7 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         if (msg.value < i_entranceFee) {
             revert Lottery__NotEnoughETHEntered();
         }
-        if (s_raffleState != RaffleState.OPEN) {
+        if (s_lotteryState != LotteryState.OPEN) {
             revert Lottery__NotOpen();
         }
         s_players.push(payable(msg.sender));
@@ -94,7 +94,7 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
             bytes memory /* performData */
         )
     {
-        bool isOpen = s_raffleState == RaffleState.OPEN;
+        bool isOpen = s_lotteryState == LotteryState.OPEN;
         bool timeElapsed = (block.timestamp - s_lastTimeStamp) > i_interval;
         bool hasPlayers = s_players.length > 0;
         bool hasBalance = address(this).balance > 0;
@@ -112,10 +112,10 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
             revert Lottery__UpkeepNotNeeded(
                 address(this).balance,
                 s_players.length,
-                uint256(s_raffleState)
+                uint256(s_lotteryState)
             );
         }
-        s_raffleState = RaffleState.CONNECTING;
+        s_lotteryState = LotteryState.CONNECTING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_keyHash,
             i_subscriptionId,
@@ -134,7 +134,7 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
-        s_raffleState = RaffleState.OPEN;
+        s_lotteryState = LotteryState.OPEN;
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
@@ -162,8 +162,8 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     // Get Raffle State
-    function getRaffleState() public view returns (RaffleState) {
-        return s_raffleState;
+    function getLotteryState() public view returns (LotteryState) {
+        return s_lotteryState;
     }
 
     // Get Last Time Stamp
