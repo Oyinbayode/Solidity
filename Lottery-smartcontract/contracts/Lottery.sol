@@ -190,4 +190,23 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     function getRequestConfirmations() public pure returns (uint16) {
         return REQUEST_CONFIRMATIONS;
     }
+
+    // GEt VRF Coordinator address
+    function getVRFCoordinator()
+        public
+        view
+        returns (VRFCoordinatorV2Interface)
+    {
+        return i_vrfCoordinator;
+    }
+
+    // Get Key Hash
+    function getKeyHash() public view returns (bytes32) {
+        return i_keyHash;
+    }
+
+    // Get Subscription ID
+    function getSubscriptionID() public view returns (uint64) {
+        return i_subscriptionId;
+    }
 }
