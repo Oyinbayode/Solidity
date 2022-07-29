@@ -156,6 +156,11 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_players[index];
     }
 
+    // Get Players
+    function getPlayers() public view returns (address payable[] memory) {
+        return s_players;
+    }
+
     // Get Recent Winner
     function getRecentWinner() public view returns (address) {
         return s_recentWinner;
@@ -208,5 +213,9 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     // Get Subscription ID
     function getSubscriptionID() public view returns (uint64) {
         return i_subscriptionId;
+    }
+
+    function getCallbackGasLimit() public view returns (uint32) {
+        return i_callbackGasLimit;
     }
 }
