@@ -143,18 +143,18 @@ const {
           assert.equal(Players.length, 0);
           assert.equal(upkeepNeeded, false);
         });
-        it("Returns false if enough time has not elapsed", async function () {
-          // await lottery.enterLottery({ value: lotteryEntranceFee });
-          await network.provider.send("evm_increaseTime", [
-            interval.toNumber() + 1,
-          ]);
-          await network.provider.request({
-            method: "evm_mine",
-            params: [],
-          });
-          const { upkeepNeeded } = await lottery.callStatic.checkUpkeep("0x");
-          assert(upkeepNeeded);
-        });
+        // it("Returns false if enough time has not elapsed", async function () {
+        //   await lottery.enterLottery({ value: lotteryEntranceFee });
+        //   await network.provider.send("evm_increaseTime", [
+        //     interval.toNumber() - 1,
+        //   ]);
+        //   await network.provider.request({
+        //     method: "evm_mine",
+        //     params: [],
+        //   });
+        //   const { upkeepNeeded } = await lottery.callStatic.checkUpkeep("0x");
+        //   assert(!upkeepNeeded);
+        // });
         it("Returns true if there are players, has ETH, enough time has passed and lottery state is open", async function () {
           await lottery.enterLottery({ value: lotteryEntranceFee });
           await network.provider.send("evm_increaseTime", [
@@ -176,6 +176,95 @@ const {
           await network.provider.send("evm_mine", []);
           const txResponse = await lottery.performUpkeep([]);
           assert(txResponse);
+        });
+        it("Reverts when checkUpkeep is false", async function () {
+          await expect(lottery.performUpkeep([])).to.be.revertedWithCustomError(
+            lottery,
+            "Lottery__UpkeepNotNeeded"
+          );
+        });
+        it("Updates the Lottery State, emits an event and calls the vrf coordinator", async function () {
+          await lottery.enterLottery({ value: lotteryEntranceFee });
+          await network.provider.send("evm_increaseTime", [
+            interval.toNumber() + 1,
+          ]);
+          await network.provider.send("evm_mine", []);
+          const txResponse = await lottery.performUpkeep([]);
+          const txReceipt = await txResponse.wait(1);
+          const requestId = txReceipt.events[1].args.requestId;
+          const lotteryState = await lottery.getLotteryState();
+          assert.equal(lotteryState.toString(), "1");
+          assert(requestId.toNumber() > 0);
+        });
+      });
+      describe("fulfillRandomWords", function () {
+        beforeEach(async function () {
+          await lottery.enterLottery({ value: lotteryEntranceFee });
+          await network.provider.send("evm_increaseTime", [
+            interval.toNumber() + 1,
+          ]);
+          await network.provider.send("evm_mine", []);
+        });
+        it("Can only be called after PerformUpkeep", async function () {
+          await expect(
+            vrfCoordinatorV2Mock.fulfillRandomWords(0, lottery.address)
+          ).to.be.revertedWith("nonexistent request");
+          await expect(
+            vrfCoordinatorV2Mock.fulfillRandomWords(1, lottery.address)
+          ).to.be.revertedWith("nonexistent request");
+        });
+        it("Picks a winner", async function (done) {
+          const additionalEntrants = 3;
+          const startingAccountIndex = 1; // deployer is 0
+          const accounts = await ethers.getSigners();
+          for (let i = 0; i < startingAccountIndex + additionalEntrants; i++) {
+            const connectedLotteryAccount = lottery.connect(accounts[i]);
+            await connectedLotteryAccount.enterLottery({
+              value: lotteryEntranceFee,
+            });
+          }
+          const startingTimeStamp = await lottery.getLastTimeStamp();
+
+          // Perform Upkeep (Mock being chainlink keeper
+
+          // Mock being the chainlink VRF
+
+          // We will have to wait for the fulfillRandomWords to be called
+
+          await new Promise(async (resolve, reject) => {
+            lottery.once("WinnerPicked", async () => {
+              console.log("Found WinnerPicked event");
+              try {
+                const recentWinner = await lottery.getRecentWinner();
+                const lotteryState = await lottery.getLotteryState();
+                const lastTimeStamp = await lottery.getLastTimeStamp();
+                const numPlayers = await lottery.getNumPlayers();
+                const winnerEndingBalance = await accounts[1].getBalance();
+
+                assert.equal(numPlayers.toString(), "0");
+                assert.equal(lotteryState.toString(), "0");
+                assert(lastTimeStamp > startingTimeStamp);
+                assert.equal(
+                  winnerEndingBalance.toString(),
+                  winnerStartingBalance
+                    .add(lotteryEntranceFee.mul(additionalEntrants))
+                    .add(lotteryEntranceFee)
+                    .toString()
+                );
+              } catch (e) {
+                reject(e);
+              }
+
+              resolve();
+            });
+            const tx = await lottery.performUpkeep([]);
+            const txReceipt = await tx.wait(1);
+            const winnerStartingBalance = await accounts[2].getBalance();
+            await vrfCoordinatorV2Mock.fulfillRandomWords(
+              txReceipt.events[1].args.requestId,
+              lottery.address
+            );
+          });
         });
       });
     });

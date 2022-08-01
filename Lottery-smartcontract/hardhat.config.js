@@ -41,4 +41,7 @@ module.exports = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY || "",
     token: "ETH",
   },
+  mocha: {
+    timeout: 300000,
+  },
 };
