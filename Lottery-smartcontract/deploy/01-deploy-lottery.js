@@ -8,15 +8,15 @@ const { verify } = require("../utils/verify");
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
-  let VRFCoordinatorV2Address, subscriptionId;
+  let vrfCoordinatorV2, subscriptionId;
   const chainId = network.config.chainId;
 
-  if (developmentChains.includes(network.name)) {
+  if (chainId === 31337) {
     const VRFCoordinatorV2Mock = await ethers.getContract(
       "VRFCoordinatorV2Mock"
     );
 
-    VRFCoordinatorV2Address = VRFCoordinatorV2Mock.address;
+    vrfCoordinatorV2 = VRFCoordinatorV2Mock.address;
     const txResponse = await VRFCoordinatorV2Mock.createSubscription();
     const txReceipt = await txResponse.wait(1);
     subscriptionId = txReceipt.events[0].args.subId;
@@ -28,7 +28,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     );
     log("----------------------------------------------------");
   } else {
-    VRFCoordinatorV2Address = networkConfig[chainId].vrfCoordinator;
+    vrfCoordinatorV2 = networkConfig[chainId].vrfCoordinatorV2;
     subscriptionId = networkConfig[chainId].subscriptionId;
   }
   log("----------------------------------------------------");
@@ -39,7 +39,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const interval = networkConfig[chainId].interval;
 
   const args = [
-    VRFCoordinatorV2Address,
+    vrfCoordinatorV2,
     entranceFee,
     keyHash,
     subscriptionId,
@@ -55,10 +55,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   });
   log(`Lottery deployed at ${Lottery.address}`);
 
-  if (
-    !developmentChains.includes(network.name) &&
-    process.env.ETHERSCAN_API_KEY
-  ) {
+  if (chainId === 4 && process.env.ETHERSCAN_API_KEY) {
     log("Verifying contract on Etherscan");
     await verify(Lottery.address, args);
   }
