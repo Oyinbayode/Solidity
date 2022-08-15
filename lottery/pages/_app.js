@@ -1,13 +1,14 @@
 import "../styles/globals.css";
-import { ChakraProvider } from "@chakra-ui/react";
+
 import { MoralisProvider } from "react-moralis";
+import { NotificationProvider } from "@web3uikit/core";
 
 function MyApp({ Component, pageProps }) {
   return (
     <MoralisProvider initializeOnMount={false}>
-      {/* <ChakraProvider> */}
-      <Component {...pageProps} />
-      {/* </ChakraProvider> */}
+      <NotificationProvider>
+        <Component {...pageProps} />
+      </NotificationProvider>
     </MoralisProvider>
   );
 }

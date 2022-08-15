@@ -20,6 +20,9 @@ module.exports = {
       url: process.env.RINKEBY_URL || "",
       accounts: [process.env.PRIVATE_KEY || ""],
     },
+    localhost: {
+      chainId: 31337,
+    },
   },
   solidity: "0.8.9",
   namedAccounts: {
