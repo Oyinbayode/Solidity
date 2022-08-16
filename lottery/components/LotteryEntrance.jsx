@@ -59,11 +59,14 @@ export default function LotteryEntrance() {
       const getRecentWinnerFromCall = await getRecentWinner();
 
       setEntranceFee(entranceFeeFromCall.toString());
-      setPlayers(getNumPlayersFromCall.toString());
+
+      setPlayers(getNumPlayersFromCall);
+
       setRecentWinner(getRecentWinnerFromCall);
     }
     updateUI();
-  }, [getEntranceFee, getNumPlayers, getRecentWinner]);
+    console.log(players);
+  }, [players, getEntranceFee, getNumPlayers, getRecentWinner]);
 
   useEffect(() => {
     if (typeof browser === "undefined") {
@@ -71,12 +74,8 @@ export default function LotteryEntrance() {
     }
     if (isWeb3Enabled) {
       callbackUI();
-
-      async () => {
-        setRecentWinner((await getRecentWinner()).tostring());
-      };
     }
-  }, [isWeb3Enabled, callbackUI, getRecentWinner]);
+  }, [isWeb3Enabled, callbackUI]);
 
   const handleNewNotification = function () {
     dispatch({
@@ -119,18 +118,23 @@ export default function LotteryEntrance() {
       ) : (
         <></>
       )}
-      {isWeb3Enabled && (
+      {isWeb3Enabled ? (
         <div>
           <p className="text-white font-bold py-3 ">
             Entrance Fee is: {ethers.utils.formatUnits(entranceFee, "ether")}ETH{" "}
           </p>
           <p className="text-white font-bold py-3 ">
-            Number of players: {players}
+            Number of players: {isWeb3Enabled && players.toString()}
           </p>
           <p className="text-white font-bold py-3 ">
             Recent winner: {recentWinner}
           </p>
         </div>
+      ) : (
+        <p className=" font-mono py-40  w-5/12 flex flex-col items-center justify-center text-white font-bold text-3xl ">
+          Welcome to Decentralized Lottery 😎. Please connect your wallet to
+          enter the Lottery
+        </p>
       )}
     </div>
   );
