@@ -30,6 +30,7 @@ module.exports = {
       { version: "0.8.9" },
       { version: "0.6.12" },
       { version: "0.4.19" },
+      { version: "0.8.10" },
     ],
   },
   namedAccounts: {
