@@ -31,6 +31,8 @@ module.exports = {
       { version: "0.6.12" },
       { version: "0.4.19" },
       { version: "0.8.10" },
+      { version: "0.6.6" },
+      { version: "0.6.0" },
     ],
   },
   namedAccounts: {
