@@ -19,7 +19,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   });
   log(`Token deployed at ${basicNFT.address}`);
 
-  if ((chainID === 5 || 4) && process.env.ETHERSCAN_API_KEY) {
+  if (chainID === 5 && process.env.ETHERSCAN_API_KEY) {
     log("Verifying NFT on Etherscan...");
     await verify(basicNFT.address, args);
   }

@@ -3,7 +3,6 @@ require("@nomiclabs/hardhat-etherscan");
 require("hardhat-deploy");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
-
 require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
