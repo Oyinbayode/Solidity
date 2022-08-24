@@ -25,6 +25,7 @@ const networkConfig = {
     ],
     mintFee: "0.25",
     interval: "30",
+    ethUsdPriceFeed: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
   },
 };
 
