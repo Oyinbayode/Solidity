@@ -6,6 +6,7 @@ const {
 const { verify } = require("../utils/verify");
 const fs = require("fs");
 const chainId = network.config.chainId;
+const args = require("../argsDynamic");
 
 module.exports = async ({ deployments, getNamedAccounts }) => {
   const { deploy, log } = deployments;
@@ -22,13 +23,13 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
 
   log("----------------------------------------------------");
 
-  const lowSVG = await fs.readFileSync("./images/dynamic/frown.svg", {
-    encoding: "utf8",
-  });
-  const highSVG = await fs.readFileSync("./images/dynamic/happy.svg", {
-    encoding: "utf8",
-  });
-  args = [ethUsdPriceFeedAddress, lowSVG, highSVG];
+  // const lowSVG = await fs.readFileSync("./images/dynamic/frown.svg", {
+  //   encoding: "utf8",
+  // });
+  // const highSVG = await fs.readFileSync("./images/dynamic/happy.svg", {
+  //   encoding: "utf8",
+  // });
+  // let args = [ethUsdPriceFeedAddress, lowSVG, highSVG];
   const dynamicSvgNft = await deploy("DynamicSvgNft", {
     contract: "DynamicSvgNft",
     from: deployer,

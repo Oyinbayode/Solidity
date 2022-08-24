@@ -63,16 +63,14 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     subscriptionId = networkConfig[chainId].subscriptionId;
   }
 
-  console.log(subscriptionId.toNumber());
-
   log("----------------------------------------------------");
   const arguments = [
+    vrfCoordinatorV2Address,
     subscriptionId,
     networkConfig[chainId].keyHash,
-    networkConfig[chainId].callbackGasLimit,
-    vrfCoordinatorV2Address,
-    tokenUris,
     ethers.utils.parseEther(networkConfig[chainId]["mintFee"]),
+    networkConfig[chainId].callbackGasLimit,
+    tokenUris,
   ];
   const randomIpfsNft = await deploy("RandomIpfsNft", {
     from: deployer,
@@ -81,19 +79,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     waitConfirmations: network.config.blockConfirmations || 1,
   });
   log("----------------------------------------------------");
-  await vrfCoordinatorV2Mock.addConsumer(subscriptionId, randomIpfsNft.address);
+  if (chainId === 31337) {
+    await vrfCoordinatorV2Mock.addConsumer(
+      subscriptionId,
+      randomIpfsNft.address
+    );
+  }
 
   // Verify the deployment
   if (chainId === 5 && process.env.ETHERSCAN_API_KEY) {
     log("Verifying...");
-    await verify(randomIpfsNft.address, [
-      subscriptionId,
-      networkConfig[chainId].keyHash,
-      networkConfig[chainId].callbackGasLimit,
-      vrfCoordinatorV2Address,
-      tokenUris,
-      ethers.utils.parseEther(networkConfig[chainId]["mintFee"]),
-    ]);
+    await verify(randomIpfsNft.address, arguments);
   }
 };
 

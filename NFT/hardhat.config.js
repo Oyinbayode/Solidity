@@ -19,6 +19,7 @@ module.exports = {
       blockConfirmations: 6,
       url: process.env.GOERLI_KEY || "",
       accounts: [process.env.PRIVATE_KEY || ""],
+      allowUnlimitedContractSize: true,
     },
     rinkeby: {
       chainId: 4,
